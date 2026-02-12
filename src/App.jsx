@@ -47,6 +47,17 @@ function App() {
     }
   }, [editId]);
 
+  useEffect(() => {
+    const saved = localStorage.getItem("todos");
+    if (saved) {
+      setTodos(JSON.parse(saved));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
+
   const handleEdit = (todo) => {
     setEditId(todo.id);
     setEditText(todo.text);
