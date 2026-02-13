@@ -14,7 +14,7 @@ const TodoList = ({
   setEditId,
 }) => {
   const filteredTodos = todos.filter(
-    (todo) => showFinished || !todo.completed
+    (task) => showFinished || task.status !== "completed"
   );
 
   if (filteredTodos.length === 0) {
@@ -27,10 +27,10 @@ const TodoList = ({
 
   return (
     <div className="todos mt-3">
-      {filteredTodos.map((todo) => (
+      {filteredTodos.map((task) => (
         <TodoItem
-          key={todo.id}
-          todo={todo}
+          key={task._id}
+          todo={task}
           editId={editId}
           editText={editText}
           setEditText={setEditText}

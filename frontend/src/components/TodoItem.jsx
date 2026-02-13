@@ -14,7 +14,7 @@ const TodoItem = ({
 }) => {
   return (
     <div className="flex items-center justify-between bg-white p-3 rounded-xl mb-3">
-      {editId === todo.id ? (
+      {editId === todo._id ? (
         <div className="flex w-full gap-3">
           <input
             ref={editInputRef}
@@ -40,18 +40,18 @@ const TodoItem = ({
           <div className="flex items-center gap-3 w-full">
             <input
               type="checkbox"
-              checked={todo.completed}
-              onChange={() => toggleComplete(todo.id)}
+              checked={todo.status === "completed"}
+              onChange={() => toggleComplete(todo._id)}
             />
 
             <span
               className={`w-full ${
-                todo.completed
+                todo.status === "completed"
                   ? "line-through text-gray-400"
                   : ""
               }`}
             >
-              {todo.text}
+              {todo.title}
             </span>
           </div>
 
@@ -64,7 +64,7 @@ const TodoItem = ({
             </button>
 
             <button
-              onClick={() => handleDelete(todo.id)}
+              onClick={() => handleDelete(todo._id)}
               className="text-red-500"
             >
               Delete
