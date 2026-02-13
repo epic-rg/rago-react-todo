@@ -1,40 +1,10 @@
-// import Navbar from "./components/Navbar.jsx";
-
-// function App() {
-
-//   return (
-//     <>
-//     <Navbar />
-//     <div className="container bg-violet-100 m-4 p-4  rounded-2xl">
-//       <div className="add-todo">
-//         <h2 className="text-lg font-bold">Add Todo</h2>
-//         <input type="text" className="bg-white"/>
-//         <button>ADD TODO</button>
-//       </div>
-//         <h2 className="text-lg font-bold">Your Todos</h2>
-
-//         <div className="todos">
-//           <div className="todo flex flex-row justify-between">
-//               <span className="text bg-white px-6 py-1 m-2 rounded-2xl">This is your task</span>
-//               <div className="buttons flex flex-row py-2 gap-12">
-//                 <button className="edit">Edit</button>
-//                 <button className="delete">Delete</button>
-//               </div>
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   )
-// }
-
-// export default App
-
 import { useState, useRef, useEffect } from "react";
 import Navbar from "./components/Navbar.jsx";
 
 function App() {
   const [todo, setTodo] = useState("");
   const [todos, setTodos] = useState([]);
+  const [showFinished, setShowFinished] = useState(true);
 
   const [editId, setEditId] = useState(null);
   const [editText, setEditText] = useState("");
@@ -85,8 +55,16 @@ function App() {
 
     if (!todo.trim()) return;
 
-    setTodos([...todos, { id: Date.now(), text: todo }]);
+    setTodos([...todos, { id: Date.now(), text: todo, completed: false }]);
     setTodo("");
+  };
+
+  const toggleComplete = (id) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
+      ),
+    );
   };
 
   return (
@@ -112,56 +90,82 @@ function App() {
           </form>
         </div>
 
+        <div className="flex items-center gap-3 mt-4 mb-4">
+          <button
+            onClick={() => setShowFinished(!showFinished)}
+            className="px-3 py-1 bg-violet-600 text-white rounded-lg"
+          >
+            {showFinished ? "Hide Finished" : "Show Finished"}
+          </button>
+        </div>
+
         <h2 className="text-lg font-bold">Your Todos</h2>
 
         <div className="todos">
-          {todos.map((todo) => (
-            <div
-              key={todo.id}
-              className="flex items-center justify-between bg-white p-3 rounded-xl mb-3"
-            >
-              {editId === todo.id ? (
-                <div className="flex w-full gap-3">
-                  <input
-                    ref={editInputRef}
-                    type="text"
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleUpdate();
-                      if (e.key === "Escape") {
-                        setEditId(null);
-                        setEditText("");
-                      }
-                    }}
-                    className="w-full px-3 py-1 border rounded-lg"
-                  />
+          {todos
+            .filter((todo) => showFinished || !todo.completed)
+            .map((todo) => (
+              <div
+                key={todo.id}
+                className="flex items-center justify-between bg-white p-3 rounded-xl mb-3"
+              >
+                {editId === todo.id ? (
+                  <div className="flex w-full gap-3">
+                    <input
+                      ref={editInputRef}
+                      type="text"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleUpdate();
+                        if (e.key === "Escape") {
+                          setEditId(null);
+                          setEditText("");
+                        }
+                      }}
+                      className="w-full px-3 py-1 border rounded-lg"
+                    />
 
-                  <button onClick={handleUpdate} className="text-green-600">
-                    Save
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <span className="w-full">{todo.text}</span>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => handleEdit(todo)}
-                      className="text-blue-500"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(todo.id)}
-                      className="text-red-500"
-                    >
-                      Delete
+                    <button onClick={handleUpdate} className="text-green-600">
+                      Save
                     </button>
                   </div>
-                </>
-              )}
-            </div>
-          ))}
+                ) : (
+                  <>
+                    <div className="flex items-center gap-3 w-full">
+                      <input
+                        type="checkbox"
+                        checked={todo.completed}
+                        onChange={() => toggleComplete(todo.id)}
+                      />
+
+                      <span
+                        className={`w-full ${
+                          todo.completed ? "line-through text-gray-400" : ""
+                        }`}
+                      >
+                        {todo.text}
+                      </span>
+                    </div>
+
+                    <div className="flex gap-4">
+                      <button
+                        onClick={() => handleEdit(todo)}
+                        className="text-blue-500"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(todo.id)}
+                        className="text-red-500"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
         </div>
       </div>
     </>

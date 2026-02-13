@@ -10,7 +10,7 @@ const Navbar = () => {
        
        <ul className="flex flex-row gap-12 justify-center items-center">
         <li className='cursor-pointer hover:font-bold duration-300'>Home</li>
-        <li className='cursor-pointer hover:font-bold duration-300'>Your tasks</li>
+        <li className='cursor-pointer hover:font-bold duration-300'>Login</li>
        </ul>
 
     </nav>
