@@ -31,14 +31,12 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-// 🔐 Hash password before saving
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+// 🔐 Hash password before saving (Mongoose 9: no next callback)
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
 
   const salt = await genSalt(10);
   this.password = await hash(this.password, salt);
-
-  next();
 });
 
 // 🔐 Compare password method

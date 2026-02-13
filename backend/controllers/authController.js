@@ -1,6 +1,34 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
+// Get current user profile
+export async function getMe(req, res) {
+  try {
+    const user = await User.findById(req.user.id).select("_id name email role");
+    if (!user) return res.status(401).json({ message: "User not found" });
+    res.status(200).json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+// List members (admin only)
+export async function getMembers(req, res) {
+  try {
+    const members = await User.find({ role: "member" }).select("_id name email");
+    res.status(200).json({ success: true, data: members });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 // Generate JWT
 const generateToken = (user) => {
   return jwt.sign(
