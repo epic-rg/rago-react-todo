@@ -1,37 +1,29 @@
-// import React from 'react'
-
-// const Navbar = () => {
-//   return (
-//     <nav className='flex justify-between bg-violet-700 mx-auto text-white p-2 px-8'>
-
-//         <div className="font-bold text-4xl">
-//             TO-DO-APP
-//         </div>
-       
-//        <ul className="flex flex-row gap-12 justify-center items-center">
-//         <li className='cursor-pointer hover:font-bold duration-300'>Home</li>
-//         <li className='cursor-pointer hover:font-bold duration-300'>Login</li>
-//        </ul>
-
-//     </nav>
-//   )
-// }
-
-// export default Navbar
+// src/components/Navbar.jsx
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
-  return (
-    <nav className="flex justify-between bg-violet-700 mx-auto text-white p-2 px-8">
-      <div className="font-bold text-4xl">TO-DO-APP</div>
+  const { user, logout } = useAuth();
 
-      <ul className="flex flex-row gap-12 justify-center items-center">
-        <li className="cursor-pointer hover:font-bold duration-300">
-          Home
-        </li>
-        <li className="cursor-pointer hover:font-bold duration-300">
-          Login
-        </li>
-      </ul>
+  return (
+    <nav className="flex justify-between bg-violet-700 text-white p-4 px-8">
+      <div className="font-bold text-2xl">Agency Task Manager</div>
+
+      <div className="flex gap-6 items-center">
+        {!user && <Link to="/login">Login</Link>}
+
+        {user && (
+          <>
+            <span className="capitalize">{user.role}</span>
+            <button
+              onClick={logout}
+              className="bg-red-500 px-3 py-1 rounded"
+            >
+              Logout
+            </button>
+          </>
+        )}
+      </div>
     </nav>
   );
 };
