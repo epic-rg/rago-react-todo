@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Navbar from "./components/Navbar.jsx";
+import { v4 as uuidv4 } from "uuid";
 
 function App() {
   const [todo, setTodo] = useState("");
@@ -28,7 +29,7 @@ function App() {
     localStorage.setItem("todos", JSON.stringify(todos));
   }, [todos]);
 
-  const handleEdit = (todo) => {
+  const startEditing  = (todo) => {
     setEditId(todo.id);
     setEditText(todo.text);
   };
@@ -36,8 +37,8 @@ function App() {
   const handleUpdate = () => {
     if (!editText.trim()) return;
 
-    setTodos(
-      todos.map((todo) =>
+    setTodos((prev) =>
+      prev.map((todo) =>
         todo.id === editId ? { ...todo, text: editText } : todo,
       ),
     );
@@ -55,7 +56,7 @@ function App() {
 
     if (!todo.trim()) return;
 
-    setTodos([...todos, { id: Date.now(), text: todo, completed: false }]);
+    setTodos([...todos, { id: uuidv4(), text: todo, completed: false }]);
     setTodo("");
   };
 
@@ -150,7 +151,7 @@ function App() {
 
                     <div className="flex gap-4">
                       <button
-                        onClick={() => handleEdit(todo)}
+                        onClick={() => startEditing (todo)}
                         className="text-blue-500"
                       >
                         Edit
