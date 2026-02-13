@@ -11,24 +11,27 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+    setSuccess(false);
 
     try {
       const user = await login(email, password);
+      setSuccess(true);
 
-      if (user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/member");
-      }
+      const path = user.role === "admin" ? "/admin" : "/member";
+      setTimeout(() => {
+        navigate(path, { replace: true, state: { fromLogin: true } });
+      }, 600);
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials");
-    } finally {
       setLoading(false);
+    } finally {
+      if (!success) setLoading(false);
     }
   };
 
@@ -38,9 +41,30 @@ const Login = () => {
         onSubmit={handleSubmit}
         className="w-80 flex flex-col gap-4"
       >
+        <div className="flex justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="text-violet-600 hover:underline"
+          >
+            ← Back
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/home")}
+            className="text-violet-600 hover:underline"
+          >
+            Home
+          </button>
+        </div>
         <h2 className="text-xl font-bold text-center">Login</h2>
 
-        {error && <p className="text-red-500">{error}</p>}
+        {success && (
+          <p className="text-green-600 text-center text-sm">
+            Login successful. Taking you to your dashboard…
+          </p>
+        )}
+        {error && <p className="text-red-500 text-sm">{error}</p>}
 
         <input
           type="email"
@@ -62,10 +86,10 @@ const Login = () => {
 
         <button
           type="submit"
-          className="bg-violet-600 text-white p-2 rounded"
-          disabled={loading}
+          className="bg-violet-600 text-white p-2 rounded-lg w-full font-medium disabled:opacity-70 disabled:cursor-not-allowed hover:bg-violet-700 transition"
+          disabled={loading || success}
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading || success ? "Logging in…" : "Login"}
         </button>
       </form>
     </div>

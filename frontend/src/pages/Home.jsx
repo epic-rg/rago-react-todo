@@ -3,28 +3,27 @@ import Navbar from "../components/Navbar";
 
 const STORAGE_KEY = "personalTodos";
 
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }
+  } catch {
+    // ignore
+  }
+  return [];
+}
+
 const Home = () => {
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState(loadFromStorage);
   const [input, setInput] = useState("");
   const [editId, setEditId] = useState(null);
   const [editText, setEditText] = useState("");
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setTodos(Array.isArray(parsed) ? parsed : []);
-      }
-    } catch {
-      setTodos([]);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (todos.length >= 0) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
   }, [todos]);
 
   const addTodo = (e) => {

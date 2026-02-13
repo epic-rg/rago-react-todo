@@ -164,7 +164,7 @@ export const completeTask = async (req, res) => {
       });
     }
 
-    if (task.assignedTo.toString() !== req.user.id) {
+    if (String(task.assignedTo) !== String(req.user.id)) {
       return res.status(403).json({
         success: false,
         message: "You can only complete your own tasks",
