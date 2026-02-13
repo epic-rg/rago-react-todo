@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import MemberDashboard from "./pages/MemberDashboard";
@@ -25,23 +26,9 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* ROOT ROUTE FIX */}
-      <Route
-        path="/"
-        element={
-          user ? (
-            user.role === "admin" ? (
-              <Navigate to="/admin" />
-            ) : (
-              <Navigate to="/member" />
-            )
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-
-      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<Navigate to="/home" replace />} />
+      <Route path="/home" element={<Home />} />
+      <Route path="/login" element={user ? <Navigate to="/home" replace /> : <Login />} />
 
       <Route
         path="/admin"
@@ -61,8 +48,7 @@ function AppRoutes() {
         }
       />
 
-      {/* Catch all invalid routes */}
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   );
 }
