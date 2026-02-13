@@ -49,7 +49,7 @@ const MemberDashboard = () => {
       <Navbar />
 
       <div className="max-w-4xl mx-auto mt-10 px-4">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl shadow-lg border border-blue-100">
+        <div className="bg-linear-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl shadow-lg border border-blue-100">
           {fromLogin && (
             <p className="text-green-600 text-sm font-medium mb-2">
               You’re in. Here are your assigned tasks.
