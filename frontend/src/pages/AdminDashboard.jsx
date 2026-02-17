@@ -17,6 +17,7 @@ function AdminDashboard() {
   const [todos, setTodos] = useState([]);
   const [members, setMembers] = useState([]);
   const [showFinished, setShowFinished] = useState(true);
+  const [showAllTasks, setShowAllTasks] = useState(false);
   const [editId, setEditId] = useState(null);
   const [editText, setEditText] = useState("");
   const [loading, setLoading] = useState(true);
@@ -82,8 +83,8 @@ function AdminDashboard() {
     }
     setError("");
     try {
-      const newTask = await createTask({ title: todo.trim(), assignedTo });
-      setTodos((prev) => [...prev, newTask]);
+      await createTask({ title: todo.trim(), assignedTo });
+      await fetchTasks();
       setTodo("");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create task");
@@ -93,10 +94,8 @@ function AdminDashboard() {
   const handleUpdate = async () => {
     if (!editText.trim()) return;
     try {
-      const updated = await updateTask(editId, { title: editText.trim() });
-      setTodos((prev) =>
-        prev.map((t) => (t._id === editId ? updated : t))
-      );
+      await updateTask(editId, { title: editText.trim() });
+      await fetchTasks();
       setEditId(null);
       setEditText("");
       setError("");
@@ -108,7 +107,7 @@ function AdminDashboard() {
   const handleDelete = async (id) => {
     try {
       await deleteTask(id);
-      setTodos((prev) => prev.filter((t) => t._id !== id));
+      await fetchTasks();
       setError("");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete task");
@@ -120,15 +119,25 @@ function AdminDashboard() {
     if (!task) return;
     const newStatus = task.status === "completed" ? "pending" : "completed";
     try {
-      const updated = await updateTask(id, { status: newStatus });
-      setTodos((prev) =>
-        prev.map((t) => (t._id === id ? updated : t))
-      );
+      await updateTask(id, { status: newStatus });
+      await fetchTasks();
       setError("");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update task");
     }
   };
+
+  const visibleTodos = todos.filter((task) => {
+    const taskAssignedId =
+      typeof task.assignedTo === "object" ? task.assignedTo?._id : task.assignedTo;
+
+    const matchesSelectedMember = showAllTasks || !assignedTo || taskAssignedId === assignedTo;
+    const matchesStatus = showFinished || task.status !== "completed";
+
+    return matchesSelectedMember && matchesStatus;
+  });
+
+  const selectedMember = members.find((m) => m._id === assignedTo);
 
   if (loading) {
     return (
@@ -192,12 +201,29 @@ function AdminDashboard() {
           members={members}
           handleSubmit={handleSubmit}
         />
+        <div className="mt-4 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowAllTasks((prev) => !prev)}
+            className="bg-violet-200 text-violet-800 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-violet-300 transition"
+          >
+            {showAllTasks ? "Show selected member tasks" : "Show all tasks"}
+          </button>
+          {!showAllTasks && selectedMember && (
+            <p className="text-sm text-gray-600">
+              Showing tasks for <span className="font-semibold">{selectedMember.name || selectedMember.email}</span>
+            </p>
+          )}
+        </div>
         {error && (
           <p className="text-red-500 text-sm mt-2">{error}</p>
         )}
         <TodoList
-          todos={todos}
+          todos={visibleTodos}
           showFinished={showFinished}
+          alreadyFiltered
+          showAssignee={showAllTasks}
+          showTimeTaken
           editId={editId}
           editText={editText}
           setEditText={setEditText}

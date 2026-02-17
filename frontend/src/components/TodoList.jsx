@@ -3,6 +3,9 @@ import TodoItem from "./TodoItem";
 const TodoList = ({
   todos,
   showFinished,
+  alreadyFiltered = false,
+  showAssignee = false,
+  showTimeTaken = false,
   editId,
   editText,
   setEditText,
@@ -13,9 +16,12 @@ const TodoList = ({
   editInputRef,
   setEditId,
 }) => {
-  const filteredTodos = todos.filter(
-    (task) => showFinished || task.status !== "completed"
-  );
+  const filteredTodos = alreadyFiltered
+    ? todos
+    : todos.filter((task) => {
+        const isCompleted = task.status === "completed" || task.completed === true;
+        return showFinished || !isCompleted;
+      });
 
   if (filteredTodos.length === 0) {
     return (
@@ -40,6 +46,8 @@ const TodoList = ({
           startEditing={startEditing}
           editInputRef={editInputRef}
           setEditId={setEditId}
+          showAssignee={showAssignee}
+          showTimeTaken={showTimeTaken}
         />
       ))}
     </div>

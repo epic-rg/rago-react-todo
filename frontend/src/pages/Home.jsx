@@ -21,6 +21,9 @@ const Home = () => {
   const [input, setInput] = useState("");
   const [editId, setEditId] = useState(null);
   const [editText, setEditText] = useState("");
+  const [showFinished, setShowFinished] = useState(true);
+
+  const filteredTodos = todos.filter((todo) => showFinished || !todo.completed);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -87,11 +90,21 @@ const Home = () => {
           </button>
         </form>
 
-        {todos.length === 0 ? (
+        <div className="mb-4">
+          <button
+            type="button"
+            onClick={() => setShowFinished((prev) => !prev)}
+            className="bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-violet-200 transition"
+          >
+            {showFinished ? "Hide finished tasks" : "Show finished tasks"}
+          </button>
+        </div>
+
+        {filteredTodos.length === 0 ? (
           <p className="text-gray-500">No items yet. Add one above.</p>
         ) : (
           <ul className="space-y-2">
-            {todos.map((todo) => (
+            {filteredTodos.map((todo) => (
               <li
                 key={todo.id}
                 className="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm"

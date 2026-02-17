@@ -11,7 +11,28 @@ const TodoItem = ({
   startEditing,
   editInputRef,
   setEditId,
+  showAssignee = false,
+  showTimeTaken = false,
 }) => {
+  const formatDuration = (ms) => {
+    if (!ms || Number.isNaN(ms)) return "-";
+    const totalMinutes = Math.floor(ms / 60000);
+    const days = Math.floor(totalMinutes / (60 * 24));
+    const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+    const minutes = totalMinutes % 60;
+
+    const parts = [];
+    if (days) parts.push(`${days}d`);
+    if (hours) parts.push(`${hours}h`);
+    if (minutes || parts.length === 0) parts.push(`${minutes}m`);
+    return parts.join(" ");
+  };
+
+  const assigneeName =
+    typeof todo.assignedTo === "object"
+      ? todo.assignedTo?.name || todo.assignedTo?.email
+      : null;
+
   return (
     <div className="flex items-center justify-between bg-white p-3 rounded-xl mb-3">
       {editId === todo._id ? (
@@ -44,15 +65,29 @@ const TodoItem = ({
               onChange={() => toggleComplete(todo._id)}
             />
 
-            <span
-              className={`w-full ${
-                todo.status === "completed"
-                  ? "line-through text-gray-400"
-                  : ""
-              }`}
-            >
-              {todo.title}
-            </span>
+            <div className="w-full">
+              <span
+                className={`w-full ${
+                  todo.status === "completed"
+                    ? "line-through text-gray-400"
+                    : ""
+                }`}
+              >
+                {showAssignee && assigneeName ? (
+                  <>
+                    <span className="font-semibold text-violet-700">{assigneeName}: </span>
+                    {todo.title}
+                  </>
+                ) : (
+                  todo.title
+                )}
+              </span>
+              {showTimeTaken && todo.status === "completed" && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Completed in: {formatDuration(todo.timeTaken)}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="flex gap-4">
