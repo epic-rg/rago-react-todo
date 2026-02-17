@@ -21,7 +21,7 @@ A full-stack **task management application** with role-based access (Admin & Mem
 
 ---
 
-## 🎯 Overview {#overview}
+## 🎯 Overview
 
 **Agency Task Manager** is a monorepo application that provides:
 
@@ -32,7 +32,7 @@ The app is split into a **React (Vite)** frontend and an **Express** backend, wi
 
 ---
 
-## ✨ Features {#features}
+## ✨ Features
 
 ### 🔐 Authentication & Authorization
 
@@ -78,7 +78,7 @@ The app is split into a **React (Vite)** frontend and an **Express** backend, wi
 
 ---
 
-## 🛠 Tech Stack {#tech-stack}
+## 🛠 Tech Stack
 
 ### Frontend
 
@@ -105,7 +105,7 @@ The app is split into a **React (Vite)** frontend and an **Express** backend, wi
 
 ---
 
-## 📁 Project Structure {#project-structure}
+## 📁 Project Structure
 
 ```text
 to-do-application/
@@ -136,7 +136,7 @@ to-do-application/
 
 ---
 
-## 📌 Prerequisites {#prerequisites}
+## 📌 Prerequisites
 
 Before you begin, ensure you have installed:
 
@@ -148,7 +148,7 @@ Before you begin, ensure you have installed:
 
 ---
 
-## 📥 Installation & Setup {#installation-setup}
+## 📥 Installation & Setup
 
 ### 1. Clone the repository
 
@@ -188,7 +188,7 @@ This creates:
 
 ---
 
-## 🔐 Environment Variables {#environment-variables}
+## 🔐 Environment Variables
 
 Create `backend/.env` with at least:
 
@@ -209,7 +209,7 @@ PORT=5000
 
 ---
 
-## ▶️ Running the Application {#running-the-application}
+## ▶️ Running the Application
 
 ### Backend (API)
 
@@ -243,7 +243,7 @@ Ensure the frontend `api` base URL matches your backend (default in `frontend/sr
 
 ---
 
-## 📡 API Reference {#api-reference}
+## 📡 API Reference
 
 Base URL: `http://localhost:5000/api`
 
@@ -272,7 +272,7 @@ Responses use a consistent shape where applicable: `{ success: true, data: ... }
 
 ---
 
-## 👥 User Roles & Flows {#user-roles-flows}
+## 👥 User Roles & Flows
 
 ### Guest (not logged in)
 
@@ -293,7 +293,7 @@ Responses use a consistent shape where applicable: `{ success: true, data: ... }
 
 ---
 
-## 📜 Scripts {#scripts}
+## 📜 Scripts
 
 ### Backend (`backend/package.json`)
 
