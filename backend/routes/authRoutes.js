@@ -5,6 +5,7 @@ import {
   login,
   getMe,
   getMembers,
+  deleteMember,
 } from "../controllers/authController.js";
 
 import { verifyToken } from "../middlewares/authMiddleware.js";
@@ -18,5 +19,6 @@ router.get("/me", verifyToken, getMe);
 
 router.post("/create-member", verifyToken, isAdmin, createMember);
 router.get("/members", verifyToken, isAdmin, getMembers);
+router.delete("/members/:memberId", verifyToken, isAdmin, deleteMember);
 
 export default router;

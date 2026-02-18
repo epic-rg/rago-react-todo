@@ -27,6 +27,11 @@ const userSchema = new Schema(
       enum: ["admin", "member"],
       default: "member",
     },
+    managedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   { timestamps: true }
 );

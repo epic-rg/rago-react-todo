@@ -1,5 +1,5 @@
 /**
- * Seed script: creates sample admin and member in the database.
+ * Seed script: creates/updates demo admin + demo member in the database.
  * Run: npm run seed   (from the backend folder)
  * Make sure MongoDB is running and .env has MONGO_URI.
  */
@@ -7,31 +7,64 @@
 import dotenv from "dotenv";
 import connectDB from "../config/db.js";
 import User from "../models/User.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-const SEED_USERS = [
-  { name: "Admin User", email: "admin@example.com", password: "admin123", role: "admin" },
-  { name: "Jane Member", email: "member@example.com", password: "member123", role: "member" },
+const DEMO_ADMIN = {
+  name: "Demo Admin",
+  email: "demo.admin@example.com",
+  password: "demoadmin123",
+  role: "admin",
+};
+
+const DEMO_MEMBERS = [
+  {
+    name: "Demo Member",
+    email: "demo.member@example.com",
+    password: "demomember123",
+    role: "member",
+  },
 ];
+
+async function createOrUpdateUser({ name, email, password, role, managedBy = null }) {
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    user = new User({ name, email, password, role, managedBy });
+    await user.save();
+    console.log("Created:", role, "—", email);
+    return user;
+  }
+
+  user.name = name;
+  user.role = role;
+  user.managedBy = managedBy;
+  user.password = password;
+  await user.save();
+  console.log("Updated:", role, "—", email);
+  return user;
+}
 
 async function seed() {
   try {
     await connectDB();
 
-    for (const u of SEED_USERS) {
-      const existing = await User.findOne({ email: u.email });
-      if (existing) {
-        console.log("Already exists:", u.email);
-        continue;
-      }
-      await User.create(u);
-      console.log("Created:", u.role, "—", u.email);
+    const admin = await createOrUpdateUser({ ...DEMO_ADMIN, managedBy: null });
+
+    for (const member of DEMO_MEMBERS) {
+      await createOrUpdateUser({
+        ...member,
+        managedBy: admin._id,
+      });
     }
 
     console.log("\n--- Login details ---\n");
-    console.log("  Admin:  email: admin@example.com   password: admin123");
-    console.log("  Member: email: member@example.com  password: member123");
+    console.log("  Admin:  email: demo.admin@example.com   password: demoadmin123");
+    console.log("  Member: email: demo.member@example.com  password: demomember123");
     console.log("\nUse these on the app login page.\n");
     process.exit(0);
   } catch (err) {

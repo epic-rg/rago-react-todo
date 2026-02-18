@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import Task from "../models/Task.js";
+import validateObjectId from "../utils/validateObjectId.js";
 
 // Get current user profile
 export async function getMe(req, res) {
@@ -22,8 +24,44 @@ export async function getMe(req, res) {
 // List members (admin only)
 export async function getMembers(req, res) {
   try {
-    const members = await User.find({ role: "member" }).select("_id name email");
+    const members = await User.find({
+      role: "member",
+      managedBy: req.user.id,
+    }).select("_id name email");
     res.status(200).json({ success: true, data: members });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+// Delete Member (admin only, scoped)
+export async function deleteMember(req, res) {
+  try {
+    const { memberId } = req.params;
+
+    if (!validateObjectId(memberId)) {
+      return res.status(400).json({ message: "Invalid member ID" });
+    }
+
+    const member = await User.findOne({
+      _id: memberId,
+      role: "member",
+      managedBy: req.user.id,
+    });
+
+    if (!member) {
+      return res.status(404).json({
+        message: "Member not found under your account",
+      });
+    }
+
+    await Task.deleteMany({ assignedTo: member._id });
+    await User.findByIdAndDelete(member._id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Member and associated tasks deleted successfully",
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -81,6 +119,7 @@ export async function createMember(req, res) {
       email,
       password,
       role: "member",
+      managedBy: req.user.id,
     });
 
     res.status(201).json({

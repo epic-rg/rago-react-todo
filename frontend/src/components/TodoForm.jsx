@@ -11,7 +11,7 @@ const TodoForm = ({ todo, setTodo, assignedTo, setAssignedTo, members, handleSub
           placeholder="Task title"
           value={todo}
           onChange={(e) => setTodo(e.target.value)}
-          className="flex-1 min-w-[200px] px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-400"
+          className="flex-1 min-w-50 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-400"
         />
         <select
           value={assignedTo}
