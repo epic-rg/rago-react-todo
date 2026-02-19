@@ -1,321 +1,308 @@
-# 🚀 Agency Task Manager
+# 🚀 Agency Task Manager (React + Node + MongoDB)
 
-A full-stack **task management application** with role-based access (Admin & Member), personal to-dos, and a REST API—built to industry-standard practices with a modern React frontend and Node.js backend.
+A full-stack task management app with **role-based access**:
 
----
+- **Admin** creates members and assigns tasks
+- **Member** manages their own assigned tasks
+- **Guest** can still use local personal todos on Home
 
-## 📋 Table of Contents
+This repo contains:
 
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation & Setup](#installation-setup)
-- [Environment Variables](#environment-variables)
-- [Running the Application](#running-the-application)
-- [API Reference](#api-reference)
-- [User Roles & Flows](#user-roles-flows)
-- [Scripts](#scripts)
-- [Author](#author)
+- `frontend/` → React + Vite app
+- `backend/` → Express + MongoDB API
 
 ---
 
-## 🎯 Overview
+## 🌍 Live Demo
 
-**Agency Task Manager** is a monorepo application that provides:
-
-- **Personal to-dos** — A local, device-only to-do list (no account required) stored in `localStorage`.
-- **Agency tasks** — Admin-assigned tasks for members, persisted in **MongoDB**, with JWT-based authentication and role-based dashboards.
-
-The app is split into a **React (Vite)** frontend and an **Express** backend, with clear separation of concerns and scalable structure.
+### **🔗 LINK: <https://rago-agency-task-manager.vercel.app/>**
 
 ---
 
-## ✨ Features
+## ✨ What’s New / Current Behavior
 
-### 🔐 Authentication & Authorization
+### Admin-member scoping (important)
 
-| Feature | Description |
-| ------- | ----------- |
-| **JWT-based auth** | Secure login with HTTP-only token handling; token sent via `Authorization: Bearer` header. |
-| **Role-based access** | Two roles: **Admin** and **Member**; routes and API endpoints enforce roles. |
-| **Protected routes** | Frontend uses `ProtectedRoute` to redirect unauthenticated or unauthorized users. |
-| **Persistent session** | On load, `/auth/me` validates the token and restores user state. |
+The backend now enforces ownership boundaries:
 
-### 📌 Personal To-Dos (Home)
+- Each member has a `managedBy` admin.
+- Admin can only:
+  - view members they created,
+  - view tasks for those members,
+  - create/update/delete tasks only for those members.
+- Admin **cannot** access another admin’s member data.
 
-| Feature | Description |
-| ------- | ----------- |
-| **Local only** | Data stored in browser `localStorage`; no backend or account required. |
-| **CRUD** | Add, edit, toggle complete, and delete items. |
-| **Persistence** | List is read on mount and saved on every change; survives refresh. |
+### Admin delete member feature
 
-### 👑 Admin Dashboard
+In admin dashboard, admin can now delete a member.
 
-| Feature | Description |
-| ------- | ----------- |
-| **Create members** | Add new members (name, email, password) for your team. |
-| **List members** | Fetch all members to assign tasks. |
-| **Create tasks** | Create tasks with a title and assign them to a member. |
-| **Manage tasks** | View all tasks, edit title, toggle status (pending/completed), delete. |
+Backend behavior:
 
-### 👤 Member Dashboard
-
-| Feature | Description |
-| ------- | ----------- |
-| **My tasks** | View only tasks assigned to the logged-in member. |
-| **Mark complete** | One-click to mark a task as completed (with backend validation). |
-| **Welcome state** | Optional “just logged in” message when arriving from login. |
-
-### 🧭 Navigation & UX
-
-| Feature | Description |
-| ------- | ----------- |
-| **Navbar** | Home (personal todos), Login (when guest), User name → dashboard, Logout. |
-| **Login UX** | Success message, short delay, then redirect with `replace` so Back doesn’t return to login. |
-| **Login page** | Back and Home buttons for easy navigation. |
+- `DELETE /api/auth/members/:memberId`
+- Deletes the member **only if** they belong to the logged-in admin.
+- Also deletes all tasks assigned to that member.
 
 ---
 
-## 🛠 Tech Stack
+## 🧱 Tech Stack
 
 ### Frontend
 
-| Technology | Purpose |
-| ---------- | ------- |
-| **React 19** | UI library and component model. |
-| **Vite 7** | Build tool, dev server, and fast HMR. |
-| **React Router 7** | Client-side routing (`/home`, `/login`, `/admin`, `/member`). |
-| **Tailwind CSS 4** | Utility-first styling (`bg-linear-to-br`, spacing, etc.). |
-| **Axios** | HTTP client; base URL and auth header interceptor. |
+- React 19
+- Vite 7
+- React Router 7
+- Axios
+- Tailwind CSS 4
 
 ### Backend
 
-| Technology | Purpose |
-| ---------- | ------- |
-| **Node.js** | Runtime. |
-| **Express 5** | REST API server, middleware, routing. |
-| **MongoDB** | Database for users and tasks. |
-| **Mongoose 9** | ODM: schemas, validation, middleware. |
-| **JWT (jsonwebtoken)** | Sign and verify tokens for auth. |
-| **bcryptjs** | Password hashing and comparison. |
-| **cors** | Allow cross-origin requests from the frontend. |
-| **dotenv** | Load environment variables from `.env`. |
+- Node.js
+- Express 5
+- MongoDB + Mongoose
+- JWT (`jsonwebtoken`)
+- `bcryptjs`
+- `dotenv`, `cors`
 
 ---
 
 ## 📁 Project Structure
 
-```text
+```txt
 to-do-application/
-├── frontend/                 # React (Vite) SPA
+├── frontend/
 │   ├── src/
-│   │   ├── components/       # Reusable UI (Navbar, Loader, ProtectedRoute, TodoForm, etc.)
-│   │   ├── context/          # AuthContext (user, login, logout)
-│   │   ├── pages/            # Route-level views (Home, Login, AdminDashboard, MemberDashboard)
-│   │   ├── services/         # API client and service functions (api, taskService, authService)
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── package.json
-│   └── vite.config.js
-│
-├── backend/                  # Express API
-│   ├── config/               # DB connection
-│   ├── controllers/         # authController, taskController
-│   ├── middlewares/          # verifyToken, authorizeRoles, isAdmin
-│   ├── models/               # User, Task (Mongoose schemas)
-│   ├── routes/               # authRoutes, taskRoutes
-│   ├── scripts/              # seedUsers.js (create sample admin & member)
-│   ├── utils/                # validateObjectId
-│   ├── server.js
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── pages/
+│   │   └── services/
 │   └── package.json
-│
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── middlewares/
+│   ├── models/
+│   ├── routes/
+│   ├── scripts/
+│   ├── Dockerfile
+│   ├── fly.toml
+│   └── package.json
+├── .github/workflows/fly-deploy.yaml
 └── README.md
 ```
 
 ---
 
-## 📌 Prerequisites
+## ⚙️ Prerequisites
 
-Before you begin, ensure you have installed:
-
-| Requirement | Purpose |
-| ----------- | ------- |
-| **Node.js** (v18+ recommended) | Run frontend and backend. |
-| **npm** (or yarn/pnpm) | Install dependencies. |
-| **MongoDB** | Local instance or MongoDB Atlas connection string. |
-
----
-
-## 📥 Installation & Setup
-
-### 1. Clone the repository
-
-```bash
-git clone <repository-url>
-cd to-do-application
-```
-
-### 2. Backend setup
-
-```bash
-cd backend
-npm install
-```
-
-Create a `.env` file in the `backend` folder (see [Environment Variables](#environment-variables)).
-
-### 3. Frontend setup
-
-```bash
-cd frontend
-npm install
-```
-
-### 4. Seed sample users (optional but recommended)
-
-From the `backend` folder:
-
-```bash
-npm run seed
-```
-
-This creates:
-
-- **Admin** — `admin@example.com` / `admin123`
-- **Member** — `member@example.com` / `member123`
+- Node.js (18+ recommended)
+- npm
+- MongoDB (local or Atlas)
 
 ---
 
 ## 🔐 Environment Variables
 
-Create `backend/.env` with at least:
-
-| Variable | Description | Example |
-| -------- | ----------- | ------- |
-| `MONGO_URI` | MongoDB connection string | `mongodb://localhost:27017/todo-app` or Atlas URI |
-| `JWT_SECRET` | Secret used to sign JWT tokens | A long, random string |
-| `JWT_EXPIRE` | Token expiry (optional) | `7d` |
-
-Example:
+Create `backend/.env`:
 
 ```env
 MONGO_URI=mongodb://localhost:27017/agency-task-manager
-JWT_SECRET=your-super-secret-key-change-in-production
+JWT_SECRET=your-super-secret
 JWT_EXPIRE=7d
 PORT=5000
 ```
 
----
+Create `frontend/.env`:
 
-## ▶️ Running the Application
-
-### Backend (API)
-
-From the project root:
-
-```bash
-cd backend
-npm start
+```env
+VITE_API_URL=http://localhost:5000
 ```
 
-Or, for development with auto-restart:
-
-```bash
-npm run dev
-```
-
-The API runs at <http://localhost:5000> (or the port in `PORT`).
-
-### Frontend (React)
-
-In a separate terminal:
-
-```bash
-cd frontend
-npm run dev
-```
-
-The app runs at <http://localhost:5173> (or the port Vite assigns).
-
-Ensure the frontend `api` base URL matches your backend (default in `frontend/src/services/api.js` is `http://localhost:5000/api`).
+> Frontend API client uses: `${VITE_API_URL}/api`
 
 ---
 
-## 📡 API Reference
+## ▶️ Run Locally
+
+### 1) Install dependencies
+
+```bash
+# backend
+npm --prefix backend install
+
+# frontend
+npm --prefix frontend install
+```
+
+### 2) Start backend
+
+```bash
+npm --prefix backend run dev
+```
+
+### 3) Start frontend
+
+```bash
+npm --prefix frontend run dev
+```
+
+Frontend: `http://localhost:5173`  
+Backend: `http://localhost:5000`
+
+---
+
+## 👤 Seed Users (Demo + Personal)
+
+### Shared demo seed (safe for repo)
+
+Run:
+
+```bash
+npm --prefix backend run seed
+```
+
+Creates/updates:
+
+- Admin: `demo.admin@example.com / demoadmin123`
+- Member (under demo admin): `demo.member@example.com / demomember123`
+
+### Local personal seed (not for Git)
+
+Use local-only script:
+
+```bash
+node backend/scripts/seedUsers.local.js
+```
+
+Creates/updates:
+
+- Admin: `raghav@agency.com / adminraghav`
+- Members (under this admin):
+  - `abhinav@agency.com / salesabhinav`
+  - `apurv@agency.com / frontendapurv`
+
+`.gitignore` includes:
+
+```txt
+backend/scripts/*.local.js
+```
+
+So personal seed scripts stay local.
+
+---
+
+## 📡 API Summary
 
 Base URL: `http://localhost:5000/api`
 
-### Auth (`/api/auth`)
+### Auth routes
 
-| Method | Endpoint | Auth | Description |
-| ------ | -------- | ---- | ----------- |
-| POST | `/register-admin` | No | Create the first admin (name, email, password). |
-| POST | `/login` | No | Login; returns `token` and `user`. |
-| GET | `/me` | Yes (Bearer) | Current user profile. |
-| POST | `/create-member` | Yes (Admin) | Create a new member. |
-| GET | `/members` | Yes (Admin) | List all members. |
+- `POST /auth/register-admin`
+- `POST /auth/login`
+- `GET /auth/me`
+- `POST /auth/create-member` (admin)
+- `GET /auth/members` (admin, scoped)
+- `DELETE /auth/members/:memberId` (admin, scoped)
 
-### Tasks (`/api/tasks`)
+### Task routes
 
-| Method | Endpoint | Auth | Description |
-| ------ | -------- | ---- | ----------- |
-| POST | `/` | Admin | Create task (title, assignedTo, optional description). |
-| GET | `/all` | Admin | List all tasks. |
-| GET | `/my` | Member | List tasks assigned to current user. |
-| PUT | `/:id` | Admin | Update task (e.g. title, status). |
-| DELETE | `/:id` | Admin | Delete task. |
-| PATCH | `/:id/complete` | Member | Mark task as completed (own tasks only). |
-
-Responses use a consistent shape where applicable: `{ success: true, data: ... }` or `{ success: false, message: "..." }`.
+- `POST /tasks` (admin, scoped assignment)
+- `GET /tasks/all` (admin, scoped)
+- `GET /tasks/user/:userId` (admin, scoped)
+- `PUT /tasks/:id` (admin, scoped)
+- `DELETE /tasks/:id` (admin, scoped)
+- `GET /tasks/my` (member)
+- `PATCH /tasks/:id/complete` (member)
 
 ---
 
-## 👥 User Roles & Flows
+## 🐳 Docker (Backend)
 
-### Guest (not logged in)
+`backend/Dockerfile` is configured for production-style container run.
 
-- **Home** → Personal to-dos (localStorage).
-- **Login** → Login page; after success → redirect to Admin or Member dashboard by role.
+Build image:
 
-### Admin
+```bash
+docker build -t agency-task-manager-backend ./backend
+```
 
-- **Home** → Personal to-dos.
-- **Name (in navbar)** → Admin dashboard: create members, create/assign tasks, edit/delete/toggle tasks.
-- **Logout** → Clear token, redirect to Home.
+Run container:
 
-### Member
+```bash
+docker run --rm -p 8080:8080 \
+  -e PORT=8080 \
+  -e MONGO_URI="<your_mongo_uri>" \
+  -e JWT_SECRET="<your_jwt_secret>" \
+  -e JWT_EXPIRE="7d" \
+  agency-task-manager-backend
+```
 
-- **Home** → Personal to-dos.
-- **Name (in navbar)** → Member dashboard: view assigned tasks, mark complete.
-- **Logout** → Clear token, redirect to Home.
+Health check endpoint:
+
+- `GET /` → `API Running...`
+
+---
+
+## 🚀 Fly.io Deployment
+
+Fly config is in `backend/fly.toml`:
+
+- app name: `agency-task-manager`
+- internal port: `8080`
+- region: `bom`
+- min machine: `1`
+
+### Manual deploy
+
+```bash
+cd backend
+flyctl deploy
+```
+
+Set Fly secrets:
+
+```bash
+flyctl secrets set MONGO_URI="<value>" JWT_SECRET="<value>" JWT_EXPIRE="7d"
+```
+
+---
+
+## 🔁 GitHub Actions CI/CD (Fly Deploy)
+
+Workflow: `.github/workflows/fly-deploy.yaml`
+
+Trigger:
+
+- push to `main`
+
+Steps:
+
+1. Checkout repo
+2. Setup `flyctl`
+3. Deploy from `backend/` with `flyctl deploy --remote-only`
+
+Required GitHub secret:
+
+- `FLY_API_TOKEN`
 
 ---
 
 ## 📜 Scripts
 
-### Backend (`backend/package.json`)
+### Backend Commands
 
-| Script | Command | Description |
-| ------ | ------- | ----------- |
-| `start` | `node server.js` | Run production server. |
-| `dev` | `nodemon server.js` | Run with auto-restart. |
-| `seed` | `node scripts/seedUsers.js` | Create sample admin and member in DB. |
+- `npm --prefix backend run start`
+- `npm --prefix backend run dev`
+- `npm --prefix backend run seed`
 
-### Frontend (`frontend/package.json`)
+### Frontend Commands
 
-| Script | Command | Description |
-| ------ | ------- | ----------- |
-| `dev` | `vite` | Start dev server with HMR. |
-| `build` | `vite build` | Production build. |
-| `preview` | `vite preview` | Preview production build locally. |
-| `lint` | `eslint .` | Run ESLint. |
+- `npm --prefix frontend run dev`
+- `npm --prefix frontend run build`
+- `npm --prefix frontend run preview`
+- `npm --prefix frontend run lint`
 
 ---
 
-## 👤 Author
+## 👨‍💻 Author
 
 Raghav
-
----
