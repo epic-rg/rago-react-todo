@@ -165,29 +165,6 @@ Creates/updates:
 - Admin: `demo.admin@example.com / demoadmin123`
 - Member (under demo admin): `demo.member@example.com / demomember123`
 
-### Local personal seed (not for Git)
-
-Use local-only script:
-
-```bash
-node backend/scripts/seedUsers.local.js
-```
-
-Creates/updates:
-
-- Admin: `raghav@agency.com / adminraghav`
-- Members (under this admin):
-  - `abhinav@agency.com / salesabhinav`
-  - `apurv@agency.com / frontendapurv`
-
-`.gitignore` includes:
-
-```txt
-backend/scripts/*.local.js
-```
-
-So personal seed scripts stay local.
-
 ---
 
 ## 📡 API Summary
